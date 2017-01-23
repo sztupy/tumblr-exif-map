@@ -1,0 +1,123 @@
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+}
+
+#header {
+	width: 100%;
+	height: 3em;
+	background-color: #CCC;
+}
+
+#header ul {
+	padding: 0;
+	margin: 0;
+}
+
+#header li {
+	font-size: 2em;
+	padding: 0;
+	margin: 0;
+	display: block;
+	list-style-type: none;
+}
+
+#header a {
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
+	padding-left: 2em;
+	padding-right: 2em;
+	display: block;
+	float: right;
+	color: black;
+	text-decoration: none;
+}
+
+#header a:hover {
+	background-color: white;
+}
+
+#map {
+	position: fixed;
+	top: 4em;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+
+#progress {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    left: 400px;
+    top: 300px;
+    width: 200px;
+    height: 20px;
+    margin-top: -20px;
+    margin-left: -100px;
+    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    padding: 2px;
+}
+
+#progress-bar {
+    width: 0;
+    height: 100%;
+    background-color: #76A6FC;
+    border-radius: 4px;
+}
+
+#about_hu, #about_en {
+	overflow: auto;
+	position: fixed;
+	display: block;
+	top: 5em;
+	left: 1em;
+	bottom: 1em;
+	right: 1em;
+	border: 1px solid black;
+	background-color: white;
+	padding: 1em;
+}
+
+#search_field {
+	display: block;
+	position: fixed;
+	padding: 0;
+	min-width: 15em;
+	right: 1em;
+	top: 4em;
+	background-color: white;
+	border: 1px solid black;
+}
+
+#search {
+	padding: 0.1em;
+	margin: 0;
+	width: 15em;
+	height: 2em;
+	border: none;
+}
+
+.close {
+	display: block;
+	position: absolute;
+	right: 1em;
+	top: 1em;
+	text-decoration: none;
+	font-size: 2em;
+}
+
+.data-popup {
+  display: block;
+	overflow: auto;
+  width: 150px;
+  min-height: 100px;
+	max-height: 200px;
+}
+
+.data-popup h4 {
+	margin: 0;
+}

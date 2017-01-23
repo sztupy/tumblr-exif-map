@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tumblr Map</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-beta.2/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.0-beta.2/leaflet.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="src/screen.css" />
+  <link rel="stylesheet" href="src/awesomplete.css" />
+
+  <link rel="stylesheet" href="src/MarkerCluster.css" />
+  <link rel="stylesheet" href="src/MarkerCluster.Default.css" />
+  <script src="src/leaflet.markercluster-src.js"></script>
+  <script src="src/leaflet-color-markers.js"></script>
+  <script src="src/awesomplete.min.js"></script>
+
+  <script src="src/points.js"></script>
+</head>
+<body>
+  <div id="header">
+    <ul>
+      <li><a href="#" onclick="javascript:showAboutEn();">About</a></li>
+      <li><a href="#" onclick="javascript:showAboutHu();">Információk</a></li>
+    </ul>
+  </div>
+  <div id="progress"><div id="progress-bar"></div></div>
+  <div id="map"></div>
+  <div id="search_field">
+    <input id="search" placeholder="blog-name">
+    <input type="checkbox" id="showHistory" onchange="javascript:reloadMarkers();" title="Display movement in time on map">
+    <a href="#" onclick="javascript:clearSearch();">[X]</a>
+  </div>
+  <div id="about_en">
+    <a class="close" href="#" onclick="closeAbout();">[X]</a>
+    <h1>Tumblr Map</h1>
+    <h2>What is this?</h2>
+    <p>A map showing the location of the photos taken by the Hungarian Tumblr community</p>
+    <h2>How does it work?</h2>
+    <p>
+      EXIF is a way to store metadata inside your image files. This includes things like what camera you used to take the pictures, what creative settings you applied on it, and nowadays it might also contain the location where the image was taken.
+    </p>
+    <p>
+      As this information might be considered sensitive data (especially if you have taken the picture at home or at work), most social sites, like Facebook, Twitter or Instagram remove these metadata from the uploaded images, so other people who check them will not find them. Tumblr however does no such thing.
+    </p>
+    <h2>Who are depicted on the map?</h2>
+    <p>The photos of about 1000 Hungarian Tumblr users.</p>
+    <h2>Can I also be included?</h2>
+    <p>
+      It takes a while to generate the data, but if you are interested in doing it yourself you can either check you own blog
+      <a href="https://github.com/sztupy/tumblr-exif-check">using this app</a> (more information about it <a href="http://tumblr.sztupy.hu/post/152375968606/tumblr-might-leak-your-location">here</a>),
+      or generate a similar map by following the instructions on <a href="https://github.com/sztupy/tumblr-exif-map">https://github.com/sztupy/tumblr-exif-map</a>
+    </p>
+    <h2>My picture is included and I don't want it to be there, what can I do?</h2>
+    <p>
+      Unfortunately due to the nature of Tumblr, neither deleting the posts, nor deleting your blog will make sure that your pictures are gone, as any reblog of your pictures will still contain the original image, with your location in them. The best thing you can do is to send a message to Tumblr's abuse staff telling them that you accidentally exposed confidential information, and ask them to remove all traces of the offending pictures from their site.
+    </p>
+    <p>
+      Also make sure that you disable location tracking inside your camera, or photo application you are using, so future photos you post will not end up exposing your location. Also always upload the image directly from Tumblr's site and not through a 3rd party site or application, as they can still inject geolocation based on their own metadata into the picture.
+    </p>
+    <p>
+      If possible try to also spread the word, so maybe Tumblr will eventually fix the problem by either automatically removing the GPS data from uploaded pictures, or at least add more visibility to the fact that an uploaded picture might contain geolocation data.
+    </p>
+  </div>
+  <div id="about_hu">
+    <a class="close" href="#" onclick="closeAbout();">[X]</a>
+    <h1>Tumblr Térkép</h1>
+    <h2>Mi ez?</h2>
+    <p>A magyar tumblr felhasználók egy része által feltöltött fotók lokációi</p>
+    <h2>Ez így hogy?</h2>
+    <p>
+      A digitális képek képesek különféle metaadatokat tárolni. Ezek egyike a készítés helye. A nagyobb szociális oldalak ezt az információt adatvédelem
+      miatt ki szokták törölni a feltöltött képekből, azonban a Tumblr ezt nem teszi.
+    </p>
+    <h2>Kik vannak fenn a térképen?</h2>
+    <p>Jeleneg kb. 1000 magyar vonatkozású blog által feltöltött képek adatai láthatók.</p>
+    <h2>Az én blogom miért nincs rajta?</h2>
+    <p>Az alábbi okok egyike miatt:
+      <ul>
+        <li>Nem kerültél bele az 1000-es listába.</li>
+        <li>Nem szoktál képeket posztolni.</li>
+        <li>Ha mégis posztolsz képeket, akkor azok nem tartalmaznak geoadatot.</li>
+        <li>Ha mégis, akkor azokat a képeket nem kép posztként töltötted fel, hanem szöveges posztba szúrtad be. Jelenleg csak a kép posztokat vizsgálja az alkalmazás.</li>
+      </ul>
+      Ha kíváncsi vagy arra, hogy a saját blogodon vannak-e a képek, melyek geoinformációt szivárogtathatnak, azt leellenőrizheted
+      <a href="https://github.com/sztupy/tumblr-exif-check">ezzel az alkalmazással</a> (bővebb információk <a href="http://tumblr.sztupy.hu/post/152375968606/tumblr-might-leak-your-location">itt</a>)
+    </p>
+    <h2>Megnéztem a képet, de az nem is ott készült!</h2>
+    <p>
+      A térképen az adatok enyhén el vannak szórva, hogy ne lehessen belőlük túl könnyen adatot kinyerni.
+      A szórás az kb. 200 métert jelent. Emellett az egymáshoz közel lévő képek (ugyanattól a felhasználótól)
+      egy pontra lettek téve. Valamint simán lehet, hogy az eredetileg feltöltött képben hibásak, vagy direkt módosítottak a geoinformációk bennük.
+    </p>
+    <h2>Az én blogom rajta van, de nem szeretném!</h2>
+    <p>
+      Ha valami már egyszer felkerült az internetre, azt nehéz leszedni. Sajnos a Tumblr-n az, hogy törlöd a posztot vagy akár az egész blogod az nem elég, mert,
+      ha valaki már reblogolta a perszonál képeidet, akkor azok fennmaradnak. Ha már reblogolták a képeidet az egyetlen dolog, amit tehetsz, hogy jelzed a problémádat
+      a Tumblr ügyfélszolgálatán és megkéred őket (arra hivatkozva, hogy személyes adatokat tartalmaznak), hogy töröljék a posztot és az összes hozzá tartozó reblogot.
+    </p>
+    <p>
+      Emellett nem baj, ha jelzed nekik, hogy ez mind elkerülhető lenne, ha vagy automatikusan törölnék a geoinformációkat a képekből feltöltésnél, vagy legalább figyelmeztetnék
+      a feltöltő felhasználót, hogy a kép alapján beazonosítható a készítés helye.
+    </p>
+    <p>
+      Emellett ne felejtsd el kikapcsolni a fényképező alkalmazásodban, vagy a kamerádon a GPS adatok elmentését, valamint a feltöltött képeket mindig a Tumblr-en keresztül töltsd fel.
+      Mobiltelefonos alkalmazás használatánál arra is érdemes ügyelni, hogy ne egy másik alkalmazáson keresztül osszuk meg a képeket a Tumblr-re, ugyanis megeshet, hogy a külső alkalmazás
+      ellátja az amúgy geoadatmentes képet geoadatokkal.
+    </p>
+    <h2>Én is csinálhatok ilyen térképet?</h2>
+    <p>Persze, ha értesz hozzá, akkor az adatok generálásához szükséges forráskód megtalálható a <a href="https://github.com/sztupy/tumblr-exif-map">https://github.com/sztupy/tumblr-exif-map</a> oldalon.</p>
+  </div>
+  <script type="text/javascript">
+    var tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, Points &copy 2012 LINZ'
+      }),
+      latlng = L.latLng(0, 0);
+
+    var map = L.map('map', { center: latlng, zoom: 1, layers: [tiles] });
+
+    var progress = document.getElementById('progress');
+    var progressBar = document.getElementById('progress-bar');
+
+    function updateProgressBar(processed, total, elapsed, layersArray) {
+      if (elapsed > 1000) {
+        // if it takes more than a second to load, display the progress bar:
+        progress.style.display = 'block';
+        progressBar.style.width = Math.round(processed/total*100) + '%';
+      }
+
+      if (processed === total) {
+        // all markers processed - hide the progress bar:
+        progress.style.display = 'none';
+      }
+    }
+
+    function createPopup(username, picture, id, title, extra, num) {
+      var content;
+      if (id==0) {
+        content = '<span class="data-popup"><h4>'+num+'</h4></span>';
+      } else {
+        content = '<span class="data-popup">';
+        content += '<h4>'+username+'</h4>';
+        content += '<img src="'+picture+'"><br />';
+        content += '<a target="_blank" href="http://'+username+'.tumblr.com/post/'+id+'">'+title+'</a><br />';
+        content += '<span>'+extra+'</span>';
+        content += '</span>';
+      }
+      return content;
+    }
+
+    var markers = L.markerClusterGroup({ chunkedLoading: true, chunkProgress: updateProgressBar });
+    var markerList = [];
+
+    function reloadMarkers() {
+
+      var selectedUser = document.getElementById("search").value;
+      var showHistory = document.getElementById("showHistory").checked;
+
+      markers.removeLayers(markerList);
+      map.removeLayer(markers);
+      for (i in map._layers) {
+          if(map._layers[i]._path != undefined) {
+              try {
+                  map.removeLayer(map._layers[i]);
+              }
+              catch(e) {
+                  console.log("problem with " + e + map._layers[i]);
+              }
+          }
+      }
+
+      markerList = [];
+
+      //console.log('start creating markers: ' + window.performance.now());
+
+      for (var username in addressPoints) {
+        if (selectedUser && username!=selectedUser) {
+          continue;
+        }
+        var linePoints = [];
+        for (var i = 0; i < addressPoints[username].length; i++) {
+          var a = addressPoints[username][i];
+          var id = a[2];
+          var pic = a[3];
+          var date = a[4];
+          var color = a[5];
+          var title = date;
+          if (!title) title = id;
+          var marker = L.marker(L.latLng(a[0], a[1]), { icon: leafletIcons[color], title: username });
+
+          if (date) {
+            linePoints.push([date, L.latLng(a[0],a[1])]);
+          }
+
+          var num = '';
+          for (var i2 = 0; i2< a[6].length; i2++) {
+            var b = a[6][i2];
+            var b_id = b[0];
+            var b_pic = b[1];
+            var b_date = b[2];
+            var b_title = b_date;
+            if (!b_title) b_title = b_id;
+            if (selectedUser) {
+              if (b_date) {
+                linePoints.push([b_date, L.latLng(a[0],a[1])]);
+              }
+              var marker2 = L.marker(L.latLng(a[0], a[1]), { icon: leafletIcons[color], title: username });
+              marker2.bindPopup(createPopup(username, b_pic, b_id, b_title, '', a[7]));
+              markerList.push(marker2);
+            } else {
+              num += '<img src="'+b_pic+'"><br />';
+              num += '<a target="_blank" href="http://'+username+'.tumblr.com/post/'+b_id+'">'+b_title+'</a><br />';
+            }
+          }
+
+          if (showHistory && selectedUser && linePoints.length>2) {
+            linePoints.sort(function(a,b) {
+              if (a[0] < b[0]) {
+                return -1;
+              }
+              if (a[0] > b[0]) {
+                return 1;
+              }
+              return 0;
+            });
+
+            var polylineOptions = {
+              color: 'blue',
+              weight: 1,
+              dashArray: '2,15',
+              opacity: 0.1
+            };
+
+            var polyLine = new L.Polyline(linePoints.map(function(el){return el[1]}), polylineOptions);
+            polyLine.addTo(map);
+          }
+
+          marker.bindPopup(createPopup(username, pic, id, title, num, a[7]));
+          markerList.push(marker);
+        }
+      }
+
+      markers.addLayers(markerList);
+      map.addLayer(markers);
+    }
+
+    function closeAbout() {
+      document.getElementById('about_en').style.display = 'none';
+      document.getElementById('about_hu').style.display = 'none';
+    }
+
+    function showAboutEn() {
+      document.getElementById('about_en').style.display = 'block';
+      document.getElementById('about_hu').style.display = 'none';
+    }
+
+    function showAboutHu() {
+      document.getElementById('about_en').style.display = 'none';
+      document.getElementById('about_hu').style.display = 'block';
+    }
+
+    function clearSearch() {
+      document.getElementById('search').value='';
+      reloadMarkers();
+    }
+
+    function initiateSearch() {
+        var input = document.getElementById("search");
+        var list = [];
+        for (var username in addressPoints) {
+          list.push(username);//[username + " (" + addressPoints[username].length + ")", username]);
+        }
+        new Awesomplete(input, {
+          list: list
+        });
+        input.addEventListener('awesomplete-selectcomplete',reloadMarkers);
+    }
+
+    closeAbout();
+    initiateSearch();
+    reloadMarkers();
+  </script>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-9404141-8', 'auto');
+    ga('send', 'pageview');
+  </script>
+</body>
+</html>

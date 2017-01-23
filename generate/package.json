@@ -1,0 +1,16 @@
+{
+  "name": "tumblr-exif-map",
+  "version": "1.0.1",
+  "description": "Generates a map of tumblr users based on exif data",
+  "main": "index.js",
+  "repository": "https://github.com/sztupy/tumblr-exif-map",
+  "author": "Zsolt Sz. Sztupák <mail@sztupy.hu>",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "exif": "^0.6.0",
+    "jsdom": "^9.8.3",
+    "leaflet": "^1.0.1",
+    "tumblr.js": "^1.1.1",
+    "async": "^2.1.4"
+  }
+}
