@@ -102,11 +102,13 @@ color = 0
 puts "\"anon\":["
 round_value = get_round_value('anon')
 data.each_pair do |k,p|
-  lat = p[:lat].to_f
-  lon = p[:lon].to_f
-  lat = lat + rand*round_value/2 - round_value/4
-  lon = lon + rand*round_value/2 - round_value/4
-  puts '[%0.5f,%0.5f,"%s","%s","%s",%d,%s,%d],' % [lat, lon, 0, 0, '', color, '[]',p[:amount]]
+  1.upto(p[:amount]) do
+    lat = p[:lat].to_f
+    lon = p[:lon].to_f
+    lat = lat + rand*round_value - round_value/2
+    lon = lon + rand*round_value - round_value/2
+    puts '[%0.5f,%0.5f,"%s","%s","%s",%d,%s,%d],' % [lat, lon, 0, 0, '', color, '[]', 1]
+  end
 end
 puts "]"
 puts '};'
